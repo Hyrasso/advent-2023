@@ -31,7 +31,7 @@ def word_to_digit(X, Y, numbers):
     for ni in range(numbers.shape[0]):
         is_digit = 1
         for off in range(numbers.shape[1]):
-            if X[idx + off] != numbers[ni][off] and numbers[ni][off] != 0:
+            if X[idx + off] != numbers[ni, off] and numbers[ni, off] != 0:
                 is_digit = 0
         if is_digit == 1:
             Y[idx] = ni + ZERO + 1
