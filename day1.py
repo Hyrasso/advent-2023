@@ -2,6 +2,8 @@ import math
 from numba import cuda
 import numpy as np
 
+from utils import gpu_sum
+
 NUM_THREADS = cuda.get_current_device().MAX_THREADS_PER_BLOCK
 
 test_input = """1abc2
@@ -55,38 +57,6 @@ def find_pairs(X, Y):
             idx += 1
         Y[idx] = (first - ZERO) * 10 + last - ZERO
 
-
-@cuda.jit
-def reduce_sum(arr, out):
-    x = cuda.grid(1)
-    bid = cuda.blockIdx.x
-    tid = cuda.threadIdx.x
-    shr = cuda.shared.array(NUM_THREADS, np.int32)
-    if x < len(arr):
-        shr[tid] = arr[x]
-    else:
-        shr[tid] = 0
-    cuda.syncthreads()
-    s = NUM_THREADS // 2
-    while s > 0:
-        if tid < s:
-            shr[tid] = shr[tid] + shr[tid + s]
-        s //= 2
-        cuda.syncthreads()
-    if tid == 0:
-        out[bid] = shr[0]
-
-def gpu_sum(arr):
-    n = len(arr)
-    if n > NUM_THREADS:
-        num_blocks = math.ceil(n / NUM_THREADS)
-        out = cuda.device_array(num_blocks, dtype=int)
-        reduce_sum[num_blocks, NUM_THREADS](arr, out)
-        reduce_sum[1, NUM_THREADS](out, out)
-    else:
-        out = cuda.device_array(1, dtype=int)
-        reduce_sum[1, NUM_THREADS](arr, out)
-    return out.copy_to_host()[0]
 
 test_data = parse(test_input)
 # print(test_data)

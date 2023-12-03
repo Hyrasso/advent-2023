@@ -1,2 +1,3 @@
 input/
 tests.py
+__pycache__/
