@@ -25,7 +25,8 @@ const card_to_rank = {
     "8": 8,
     "9": 9,
     "T": 10,
-    "J": 11,
+    // "J": 11,
+    "J": 0,
     "Q": 12,
     "K": 13,
     "A": 14,
@@ -46,18 +47,21 @@ function findHandType(cards: number[]): HandType {
             counts[card] = 1
         }
     }
+    const joker_count = counts[0] || 0
+    counts[0] = undefined
     const comb = Object.values(counts).sort((a, b) => b - a) // sort descending order
-    if (comb[0] == 5) {
+    // console.log(comb, joker_count)
+    if (joker_count == 5 || (comb[0] == 5 - joker_count)) {
         return HandType.Five
-    } else if (comb[0] == 4) {
+    } else if (comb[0] == 4 - joker_count) {
         return HandType.Four
-    } else if (comb[0] == 3 && comb[1] == 2) {
+    } else if (comb[0] == 3 - joker_count && comb[1] == 2) {
         return HandType.FullHouse
-    } else if (comb[0] == 3) {
+    } else if (comb[0] == 3 - joker_count) {
         return HandType.Three
-    } else if (comb[0] == 2 && comb[1] == 2) {
+    } else if (comb[0] == 2 && comb[1] == 2 - joker_count) {
         return HandType.TwoPair
-    } else if (comb[0] == 2) {
+    } else if (comb[0] == 2 - joker_count) {
         return HandType.OnePair
     } else if (comb[0] == 1) {
         return HandType.High
@@ -94,4 +98,4 @@ hands.sort((ha, hb) => {
     }
     return 0;
 })
-console.log("Part 1", hands.map((hand, i) => hand.bid * (i + 1)).reduce((a, b) => a + b))
+console.log("Part 2", hands.map((hand, i) => hand.bid * (i + 1)).reduce((a, b) => a + b))
