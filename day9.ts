@@ -18,7 +18,7 @@ function solve(hists) {
             diffs.push(diff)
         }
         // console.log(diffs)
-        const next = diffs.map((diff) => diff[diff.length-1]).reduce((a, b) => a + b)
+        const next = diffs.map((diff) => diff[0]).reverse().reduce((a, b) => b - a)
         // console.log(next)
         return next
     })
