@@ -1,3 +1,4 @@
 input/
 tests.py
 __pycache__/
+.vscode/
