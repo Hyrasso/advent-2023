@@ -74,7 +74,7 @@ function search(line_spring: LineSpring) {
     // start search
     // console.log(line_spring)
     // console.log(state)
-    let cache = {}
+    const cache = {}
     return inner_search(line_spring, state, cache)
 }
 
@@ -112,7 +112,7 @@ function inner_search(line_spring: LineSpring, state, cache) {
                 break
             }
         }
-        // cache is not the same for eg: #01001 and #01010 as adding one extends the last group
+        // cache is not the same when adding one for eg: #01001? and #01010?
         let cache_idx = [idx, state.reduce((acc, b) => acc += (b == 1)), group_size]
         let val = cache[cache_idx]
         if (val !== undefined) {
