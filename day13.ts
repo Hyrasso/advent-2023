@@ -19,16 +19,22 @@ function solve(text: string) {
     return text.split("\n\n").map((block, idx) => {
 
         let lines = block.split("\n").map((line) => line.split(""))
-        for (let index = 0; index < lines.length - 1; index++) {
-            let smudge = 0
-            for (let i=0;i<lines.length;i+=1) {
-                if (index - i < 0 || index + i + 1 >= lines.length) {
-                    break
-                }
-                const count_diff = lines[index - i].reduce((acc, val, cidx) => acc + (val != lines[index + i + 1][cidx]), 0)
-                // console.log(count_diff, lines[index - i], lines[index + i + 1])
-                smudge += count_diff
+
+        function count_smudges(index: number) {
+          let smudge = 0;
+          for (let i = 0; i < lines.length; i += 1) {
+            if (index - i < 0 || index + i + 1 >= lines.length) {
+              break;
             }
+            const count_diff = lines[index - i].reduce((acc, val, cidx) => acc + (val != lines[index + i + 1][cidx]), 0);
+            // console.log(count_diff, lines[index - i], lines[index + i + 1])
+            smudge += count_diff;
+          }
+          return smudge;
+        }
+    
+        for (let index = 0; index < lines.length - 1; index++) {
+            let smudge = count_smudges(index);
             // console.log(index, smudge)
             if (smudge == 1) {
                 return (index + 1) * 100
@@ -43,15 +49,7 @@ function solve(text: string) {
         // console.log(lines_transposed)
         lines = lines_transposed
         for (let index = 0; index < lines.length - 1; index++) {
-            let smudge = 0
-            for (let i=0;i<lines.length;i+=1) {
-                if (index - i < 0 || index + i + 1 >= lines.length) {
-                    break
-                }
-                const count_diff = lines[index - i].reduce((acc, val, cidx) => acc + (val != lines[index + i + 1][cidx]), 0)
-                // console.log(count_diff, lines[index - i], lines[index + i + 1])
-                smudge += count_diff
-            }
+            let smudge = count_smudges(index);
             if (smudge == 1) {
                 return index + 1
             }
@@ -59,6 +57,7 @@ function solve(text: string) {
         console.log("Uhhhhh")
         console.log(idx, lines)
         return undefined
+
     }).reduce((a, b) => a + b)
 }
 
