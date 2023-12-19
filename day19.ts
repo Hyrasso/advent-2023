@@ -49,7 +49,7 @@ function solve(workflow, parts) {
             let wf = workflow[state]
 
             for (let cond of wf.conds) {
-                console.log(part[cond.key], cond)
+                // console.log(part[cond.key], cond)
                 if (cond.cmp == "<" && part[cond.key] < cond.val) {
                     state = cond.target
 
@@ -71,8 +71,72 @@ function solve(workflow, parts) {
     }).reduce((a, b) => a + b)
 }
 
+function split_range(range, cond) {
+    function inner_split_range(range, cond) {
+        let insup = range[cond.key]
+        if (insup === undefined) {
+            return [undefined, undefined]
+        }
+        if (cond.cmp == "<") {
+            if (cond.val > insup[1]) {
+                return [[], insup]
+            } else if (cond.val < insup[0]) {
+                return [insup, []]
+            } else {
+                return [[cond.val, insup[1]], [insup[0], cond.val - 1]]
+            }
+        } else if (cond.cmp == ">") {
+            if (cond.val > insup[1]) {
+                return [insup, []]
+            } else if (cond.val < insup[0]) {
+                return [[], insup]
+            } else {
+                return [[insup[0], cond.val], [cond.val + 1, insup[1]]]
+            }
+        }
+    }
+    let left = {...range}
+    let right = {...range}
+    let [f, t] = inner_split_range(range, cond)
+    left[cond.key] = f
+    right[cond.key] = t
+    return [left, right]
+}
+
+
+function solve2(workflow) {
+    let ranges = {}
+    let accepted = []
+    ranges["in"] = {x: [1, 4000], m: [1, 4000], a: [1, 4000], s: [1, 4000]}
+    let to_visit = ["in"]
+    while (to_visit.length > 0) {
+        let wf_label = to_visit.pop()
+        let range = ranges[wf_label]
+        let wf = workflow[wf_label]
+        let true_range = undefined
+        for (let cond of wf.conds) {
+            [range, true_range] = split_range(range, cond)
+            if (cond.target == "A") {
+                accepted.push(true_range)
+            } else if (cond.target != "R") {
+                ranges[cond.target] = true_range
+                to_visit.push(cond.target)
+            }
+        }
+        if (wf.default == "A") {
+            accepted.push(range)
+        } else if (wf.default != "R") {
+            ranges[wf.default] = range
+            to_visit.push(wf.default)
+        }
+    }
+    // console.log(accepted)
+    return accepted.map((p) => (p.x[1] - p.x[0] + 1) * (p.m[1] - p.m[0] + 1) * (p.a[1] - p.a[0] + 1) * (p.s[1] - p.s[0] + 1)).reduce((a, b) => a + b)
+}
+
 const text_input = Deno.readTextFileSync("input/day19.txt")
 let [wf, parts] = parse(text_input)
 console.log(wf)
-console.log(parts)
-console.log(solve(wf, parts))
+// console.log(parts)
+console.log(solve2(wf, parts))
+// console.log(solve(wf, parts))
